@@ -1,0 +1,40 @@
+
+import scala.util.Properties
+import java.io.File
+import java.util.{List, Map}
+import $ivy.`com.amazonaws:aws-java-sdk-s3:1.11.445`
+import $ivy.`com.amazonaws:aws-java-sdk-bom:1.11.445`
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
+import com.amazonaws.services.s3.model._
+
+val S3_SECRET_KEY  = Properties.envOrElse("S3_SECRET_KEY", "")
+val S3_ACCESS_KEY  = Properties.envOrElse("S3_ACCESS_KEY", "")
+val S3_BUCKET_NAME = Properties.envOrElse("S3_BUCKET_NAME", "")
+val S3_URL_PREFIX  = Properties.envOrElse("S3_URL_PREFIX", "https://s3.amazonaws.com")
+
+val credentials = new BasicAWSCredentials(S3_ACCESS_KEY, S3_SECRET_KEY)
+val s3: AmazonS3 = AmazonS3ClientBuilder.standard()
+     .withCredentials(new AWSStaticCredentialsProvider(credentials)).build()
+
+def uploadToS3(fileName: String, uploadPath: String): String = {
+  s3.putObject(S3_BUCKET_NAME, uploadPath, new File(fileName))
+
+  val acl = s3.getObjectAcl(S3_BUCKET_NAME, uploadPath)
+  acl.grantPermission(GroupGrantee.AllUsers, Permission.Read)
+  s3.setObjectAcl(S3_BUCKET_NAME, uploadPath, acl)
+
+  s"$S3_URL_PREFIX/$S3_BUCKET_NAME/$uploadPath"
+}
+
+# upload
+uploadToS3("D:/230220152974.png", "dir/230220152974.png")
+
+# getting meta data:
+val meta:ObjectMetadata = s3.getObjectMetadata(S3_BUCKET_NAME, "dir/230220152974.png")
+val mapMeta:Map[String, String] = meta.getUserMetadata
+
+# getting tag
+val getTaggingRequest = new GetObjectTaggingRequest(S3_BUCKET_NAME, "dir/230220152974.png");
+val tags:List[Tag] = s3.getObjectTagging(getTaggingRequest).getTagSet
+tags.forEach(x => println(x.getKey, x.getValue))
