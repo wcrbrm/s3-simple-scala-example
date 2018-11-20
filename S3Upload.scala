@@ -27,6 +27,31 @@ def uploadToS3(fileName: String, uploadPath: String): String = {
   s"$S3_URL_PREFIX/$S3_BUCKET_NAME/$uploadPath"
 }
 
+def getContentType(fileName: String): String = {
+  if (fileName.endsWith(".png")) { "image/png" }
+  else if (fileName.endsWith(".gif")) { "image/gif" }
+  else if (fileName.endsWith(".jpg")) { "image/jpeg" }
+  else if (fileName.endsWith(".jpeg")) { "image/jpeg" }
+  else if (fileName.endsWith(".webp")) { "image/webp" }
+  else if (fileName.endsWith(".bmp")) { "image/bmp" }
+  else if (fileName.endsWith(".svg")) { "image/svg+xml" }
+  else if (fileName.endsWith(".ico")) { "image/x-icon" }
+  else if (fileName.endsWith(".flv")) { "video/x-flv" }
+  else if (fileName.endsWith(".mov")) { "video/mp4" }
+  else if (fileName.endsWith(".m3u8")) { "application/x-mpegURL" }
+  else if (fileName.endsWith(".ts")) { "video/MP2T" }
+  else if (fileName.endsWith(".3gp")) { "video/3gp" }
+  else if (fileName.endsWith(".mov")) { "video/quicktime" }
+  else if (fileName.endsWith(".avi")) { "video/x-msvideo" }
+  else if (fileName.endsWith(".wmv")) { "video/x-ms-wmv" }
+  else if (fileName.endsWith(".ogg")) { "video/ogg" }
+  else if (fileName.endsWith(".webm")) { "video/webm" }
+  else "application/octet-stream"
+}
+
+
+
+
 # upload
 uploadToS3("D:/230220152974.png", "dir/230220152974.png")
 
