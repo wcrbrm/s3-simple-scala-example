@@ -49,7 +49,21 @@ def getContentType(fileName: String): String = {
   else "application/octet-stream"
 }
 
+// will give a warning from AWS as it might not fit in the memory
+def uploadStreamToS3(is: java.io.InputStream, uploadPath: String): String = {
+    
+  // val contentsAsStream = new ByteArrayInputStream(contentAsBytes);
+  val meta = new ObjectMetadata();
+  // meta.setContentLength(contentAsBytes.length);
+  meta.setContentType(getContentType(uploadPath));
+  s3.putObject(new PutObjectRequest(S3_BUCKET_NAME, uploadPath, is, meta));
+    
+  val acl = s3.getObjectAcl(S3_BUCKET_NAME, uploadPath)
+  acl.grantPermission(GroupGrantee.AllUsers, Permission.Read)
+  s3.setObjectAcl(S3_BUCKET_NAME, uploadPath, acl)
 
+  s"$S3_URL_PREFIX/$S3_BUCKET_NAME/$uploadPath"
+}
 
 
 # upload
